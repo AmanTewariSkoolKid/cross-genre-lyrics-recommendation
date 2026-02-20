@@ -9,3 +9,5 @@ Templates/
 *.tpl
 
 data/raw/
+approot/data/raw/songs_with_attributes_and_lyrics.csv
+/approot/data/raw
