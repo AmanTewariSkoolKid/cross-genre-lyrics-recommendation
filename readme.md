@@ -73,7 +73,6 @@ The system follows a structured pipeline:
 
 Primary dataset options:
 
-* [Music Dataset 1950–2019 (Kaggle)](https://www.kaggle.com/datasets/saurabhshahane/music-dataset-1950-to-2019)
 * [Spotify Songs with Attributes and Lyrics (Kaggle)](https://www.kaggle.com/datasets/bwandowando/spotify-songs-with-attributes-and-lyrics)
 
 Required fields:
