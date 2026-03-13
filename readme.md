@@ -159,3 +159,11 @@ This project demonstrates the application of pattern recognition and unsupervise
 ## License
 
 This project is developed for academic purposes as part of a Minor Project submission.
+
+---
+
+## Recent changes
+
+* **v0.0.5 — Feature Extraction Pipeline Initialization**
+
+   * Added initial feature extraction module at `src/features/extract_features.py` that loads `data/processed/spotify_clean.csv`, validates required columns (`id`, `title`, `artist`, `lyrics`), removes rows with missing lyrics, and adds a helper `_word_count` column used for later feature extraction. Basic diagnostics (total, avg, min, max word counts) are printed on load.

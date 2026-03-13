@@ -1,6 +1,6 @@
 # Ignore documentation and team-shared folders
 Documentation/
-Sent\ By\ Team\ members/
+Sent By Team members/
 
 # Ignore templates folder and common template file extensions
 Templates/
