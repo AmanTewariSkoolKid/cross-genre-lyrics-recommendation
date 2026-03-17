@@ -190,3 +190,6 @@ Added computed features:
 * `repetition_score`
 
 Features are derived using word tokenization and frequency counts. The module integrates `extract_lexical_features(df)` into the pipeline and prints diagnostics reporting average lexical diversity, average repetition score, and average vocabulary size. The dataset now contains initial numerical features for lyric pattern representation.
+
+
+testing connection
