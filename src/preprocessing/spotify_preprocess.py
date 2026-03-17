@@ -78,12 +78,11 @@ def detect_app_root(start: Path) -> Path:
     base = start
     if base.name == '.venv':
         base = base.parent
-    if (base / 'approot').exists():
-        return (base / 'approot').resolve()
+    # Prefer repository root markers ('.git' or README) instead of the deprecated 'approot'
     p = base
-    for _ in range(6):
-        if (p / 'approot').exists():
-            return (p / 'approot').resolve()
+    for _ in range(10):
+        if (p / '.git').exists() or (p / 'readme.md').exists() or (p / 'README.md').exists():
+            return p.resolve()
         if p.parent == p:
             break
         p = p.parent

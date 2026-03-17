@@ -125,7 +125,7 @@ This version prepares dataset for composite key and lyric hash deduplication.
   * Lyrics-hash deduplication
   * IQR-based word-count filtering
 
-* Auto-detects approot and applies default raw/processed paths
+* Auto-detects repository root (formerly `approot`) and applies default raw/processed paths
 * Produces single consolidated `spotify_clean.csv` output to `data/processed`
 
 ** depcreated 'spotify960k_preprocessing' into  spotify960k_preprocessing_oldDeprecrated'use to performance issues.

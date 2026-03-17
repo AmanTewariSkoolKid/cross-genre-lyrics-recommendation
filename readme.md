@@ -92,7 +92,7 @@ Audio features, popularity metrics, and external metadata are excluded from clus
 ## Project Structure
 
 ```
-approot/
+project-root/
 │
 ├── data/
 │   ├── raw/
