@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Iterable, Tuple
 
 import pandas as pd
+import logging
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -138,7 +139,7 @@ def pass1_compute_bounds(
         seen_lyrics_hash.update(chunk['_lyrics_hash'])
         word_counts.extend(chunk['_word_count'].astype(int).tolist())
         rows_kept += len(chunk)
-        print(f'Pass1 chunk {i:03d}: kept {len(chunk):6d} / {rows_in:6d} so far')
+        logging.info('PASS1 chunk %03d: kept %6d / %6d so far', i, len(chunk), rows_in)
 
     if not word_counts:
         raise RuntimeError('No rows survived initial filtering; check the raw CSV and filters.')
@@ -149,7 +150,7 @@ def pass1_compute_bounds(
     lo = max(1, int(q1 - 1.5 * iqr))
     hi = int(q3 + 1.5 * iqr)
 
-    print(f'Pass1 complete: input {rows_in:,} → kept {rows_kept:,}. Word-count IQR [{lo}, {hi}].')
+    logging.info('PASS1 complete: input %d → kept %d. Word-count IQR [%d, %d].', rows_in, rows_kept, lo, hi)
     return lo, hi, rows_in, rows_kept
 
 
@@ -181,7 +182,7 @@ def pass2_write_output(
 
         # Create output that contains ONLY normalized information (no raw title/artist/lyrics)
         out = pd.DataFrame({
-            'id': chunk['id'],
+            'id': chunk['id'].astype(str),
             'title': chunk['normalized_title'],
             'artist': chunk['normalized_artist'],
             'lyrics': chunk['normalized_lyrics'],
@@ -191,9 +192,9 @@ def pass2_write_output(
         out.to_csv(out_csv, mode=mode, header=header, index=False)
 
         rows_written += len(out)
-        print(f'Pass2 chunk {i:03d}: wrote {len(out):6d} (total {rows_written:,})')
+        logging.info('PASS2 chunk %03d: wrote %6d (total %d)', i, len(out), rows_written)
 
-    print(f'✔ Done. Final rows written: {rows_written:,} → {out_csv}')
+    logging.info('✔ Done. Final rows written: %d → %s', rows_written, out_csv)
     return rows_written
 
 
@@ -212,6 +213,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
+    # configure logging early so helper functions log properly
+    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+
     app_root = detect_app_root(Path.cwd())
     default_raw = app_root / 'data' / 'raw' / 'songs_with_attributes_and_lyrics.csv'
     default_out = app_root / 'data' / 'processed' / 'spotify_clean.csv'
@@ -224,6 +228,15 @@ def main() -> None:
 
     chunk_size = max(1_000, args.chunk_size)
     usecols = ['id', 'name', 'artists', 'lyrics']
+
+    # Validate the CSV header contains required columns
+    try:
+        sample = pd.read_csv(raw_csv, nrows=0)
+    except Exception as exc:
+        raise RuntimeError(f'Unable to read CSV header from {raw_csv}: {exc}')
+    missing = [c for c in usecols if c not in sample.columns]
+    if missing:
+        raise RuntimeError(f'Missing required columns in raw CSV: {missing}')
 
     lo, hi, rows_in, rows_kept = pass1_compute_bounds(raw_csv, chunk_size, usecols)
     _ = pass2_write_output(raw_csv, out_csv, chunk_size, usecols, lo, hi)
