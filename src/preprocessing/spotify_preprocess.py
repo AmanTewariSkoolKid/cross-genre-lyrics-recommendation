@@ -179,7 +179,13 @@ def pass2_write_output(
 
         chunk = chunk[(chunk['_word_count'] >= lo) & (chunk['_word_count'] <= hi)].copy()
 
-        out = chunk[['id', 'title', 'artist', 'normalized_title', 'normalized_artist', 'lyrics', 'normalized_lyrics']]
+        # Create output that contains ONLY normalized information (no raw title/artist/lyrics)
+        out = pd.DataFrame({
+            'id': chunk['id'],
+            'title': chunk['normalized_title'],
+            'artist': chunk['normalized_artist'],
+            'lyrics': chunk['normalized_lyrics'],
+        })
         mode = 'w' if rows_written == 0 else 'a'
         header = rows_written == 0
         out.to_csv(out_csv, mode=mode, header=header, index=False)
