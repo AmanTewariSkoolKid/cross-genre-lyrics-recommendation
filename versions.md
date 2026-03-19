@@ -39,8 +39,7 @@ Pipeline includes:
 * Normalize lyrics
 * Remove duplicate lyrics using hash comparison
 * Remove extreme length outliers
-* Save cleaned dataset to:
-  `data/processed/spotify_clean.csv`
+* Save cleaned dataset to: `data/processed/spotify_clean.csv`
 
 ---
 
@@ -105,7 +104,6 @@ This version prepares dataset for composite key and lyric hash deduplication.
 
 ---
 
-
 ## v0.0.5 — Streaming CLI + Notebook Runner
 
 * Added memory-light two-pass streaming pipeline for full dataset processing in chunks
@@ -127,51 +125,42 @@ This version prepares dataset for composite key and lyric hash deduplication.
 
 * Auto-detects repository root (formerly `approot`) and applies default raw/processed paths
 * Produces single consolidated `spotify_clean.csv` output to `data/processed`
-
-** depcreated 'spotify960k_preprocessing' into  spotify960k_preprocessing_oldDeprecrated'use to performance issues.
-
-
-## v0.0.5.1 - improved explaination of preprocessing
-    * title does it
-Use this instead of the previous TLDR block.
+* Deprecated `spotify960k_preprocessing` into `spotify960k_preprocessing_old_deprecated` due to performance issues
 
 ---
 
+## v0.0.5.1 — Improved Explanation of Preprocessing
 
+* Enhanced documentation and clarity of preprocessing pipeline steps
 
-## v0.0.5 — Feature Extraction Pipeline Initialization
+---
 
-* Created initial feature extraction module:
-  `src/features/extract_features.py`
-* Implemented dataset loading from
-  `data/processed/spotify_clean.csv`
+## v0.0.5.2 — Feature Extraction Pipeline Initialization
+
+* Created initial feature extraction module: `src/features/extract_features.py`
+* Implemented dataset loading from `data/processed/spotify_clean.csv`
 * Added validation for required columns:
 
   * id
   * title
   * artist
   * lyrics
-* Removed rows with missing lyrics.
-* Introduced helper column:
 
-```text
-_word_count
-```
-
-* `_word_count` stores the number of words per song using whitespace tokenization.
+* Removed rows with missing lyrics
+* Introduced helper column: `_word_count`
+* `_word_count` stores the number of words per song using whitespace tokenization
 * Added dataset diagnostics output:
 
   * total songs loaded
   * average lyric word count
   * minimum lyric word count
   * maximum lyric word count
+
 * Structured the module to support upcoming feature extraction functions:
 
   * lexical feature extraction
   * structural feature extraction
   * emotion feature extraction
-
-This patch initializes the feature engineering stage and prepares the dataset for numerical feature generation used in clustering.
 
 ---
 
@@ -182,37 +171,39 @@ Implemented lexical feature extraction in `src/features/extract_features.py`.
 Added computed features:
 
 * `unique_words`
-
 * `lexical_diversity`
-
 * `top_word_frequency`
-
 * `repetition_score`
 
-testing connection
-Features are derived using word tokenization and frequency counts. The module integrates `extract_lexical_features(df)` into the pipeline and prints diagnostics reporting average lexical diversity, average repetition score, and average vocabulary size. The dataset now contains initial numerical features for lyric pattern representation.
+Features are derived using word tokenization and frequency counts.
+The module integrates `extract_lexical_features(df)` into the pipeline and prints diagnostics reporting average lexical diversity, average repetition score, and average vocabulary size.
+The dataset now contains initial numerical features for lyric pattern representation.
 
 ---
 
 ## v0.0.8 — Codebase Cleanup & Lexical Stability Fix
 
-* Removed duplicated code block in `src/features/extract_features.py`.
-* Improved tokenization using an alphanumeric regex that preserves apostrophes: `[a-z0-9']+`.
-* Fixed edge cases in top-word frequency calculation to safely handle non-list or empty token values.
-* Introduced optional `_tokens` column to cache token lists for reuse in future feature extractors.
+* Removed duplicated code block in `src/features/extract_features.py`
+* Improved tokenization using alphanumeric regex that preserves apostrophes: `[a-z0-9']+`
+* Fixed edge cases in top-word frequency calculation to safely handle non-list or empty token values
+* Introduced optional `_tokens` column to cache token lists for reuse in future feature extractors
 
-TLDR:
+---
 
-v0.0.8:
+## v0.0.9 — Structural Feature Extraction
 
-Removed duplicate code in extract_features.py
+Implemented `extract_structural_features(df)` in `src/features/extract_features.py`.
 
-Improved tokenization regex
+Added structural features:
 
-Fixed edge cases in word frequency calculation
+* `line_count`
+* `avg_line_length`
+* `line_length_variance`
 
-Added optional token caching
+Features derived using newline-based segmentation of lyrics.
+Ignored empty lines to ensure clean statistics.
+Added safeguards for empty or malformed lyrics.
+Integrated structural metrics into feature pipeline for improved pattern representation.
 
-Lexical feature extraction now stable and ready for next stage
+---
 
-testing connection

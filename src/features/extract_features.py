@@ -103,7 +103,64 @@ def extract_lexical_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def extract_structural_features(df: pd.DataFrame) -> pd.DataFrame:
-    raise NotImplementedError("extract_structural_features will be implemented later")
+    """Compute structural features based on lyric line structure.
+
+    Adds the following columns to a copy of `df` and returns it:
+    - `line_count`: number of non-empty lines
+    - `avg_line_length`: average words per line (float)
+    - `line_length_variance`: variance of words-per-line (float)
+
+    Rules:
+    - Split lyrics on "\n" and ignore empty lines after strip().
+    - Count words per line using the existing `_count_words` helper.
+    - If a song has no valid lines, all three features are 0.
+    """
+    df = df.copy()
+
+    def _process(lyrics):
+        if not isinstance(lyrics, str):
+            return 0, 0.0, 0.0
+
+        # Split into lines and ignore empty ones
+        lines = [ln.strip() for ln in lyrics.split("\n") if ln.strip()]
+        if not lines:
+            return 0, 0.0, 0.0
+
+        # Count words per line using existing helper (whitespace-safe)
+        lengths = [_count_words(line) for line in lines]
+        line_count = len(lengths)
+
+        # Avoid division by zero; numpy handles single-element variance -> 0.0
+        avg_line_length = float(np.mean(lengths)) if line_count > 0 else 0.0
+        line_length_variance = float(np.var(lengths)) if line_count > 0 else 0.0
+
+        return int(line_count), avg_line_length, line_length_variance
+
+    # Map processing across lyrics column
+    stats = df["lyrics"].map(_process)
+
+    # Expand tuples into a DataFrame aligned with df index
+    stats_df = pd.DataFrame(stats.tolist(), index=df.index, columns=["line_count", "avg_line_length", "line_length_variance"])
+
+    # Ensure correct dtypes
+    stats_df["line_count"] = stats_df["line_count"].astype(int)
+    stats_df["avg_line_length"] = stats_df["avg_line_length"].astype(float)
+    stats_df["line_length_variance"] = stats_df["line_length_variance"].astype(float)
+
+    # Assign to copy and return
+    df = pd.concat([df, stats_df], axis=1)
+
+    # Diagnostics: print averages across the dataset
+    total = len(df)
+    avg_count = float(np.nanmean(df["line_count"])) if total > 0 else 0.0
+    avg_len = float(np.nanmean(df["avg_line_length"])) if total > 0 else 0.0
+    avg_var = float(np.nanmean(df["line_length_variance"])) if total > 0 else 0.0
+
+    print(f"Average line count: {avg_count:.3f}")
+    print(f"Average line length: {avg_len:.3f}")
+    print(f"Average line variance: {avg_var:.3f}")
+
+    return df
 
 
 def extract_emotion_features(df: pd.DataFrame) -> pd.DataFrame:
