@@ -189,7 +189,30 @@ Added computed features:
 
 * `repetition_score`
 
+testing connection
 Features are derived using word tokenization and frequency counts. The module integrates `extract_lexical_features(df)` into the pipeline and prints diagnostics reporting average lexical diversity, average repetition score, and average vocabulary size. The dataset now contains initial numerical features for lyric pattern representation.
 
+---
+
+## v0.0.8 — Codebase Cleanup & Lexical Stability Fix
+
+* Removed duplicated code block in `src/features/extract_features.py`.
+* Improved tokenization using an alphanumeric regex that preserves apostrophes: `[a-z0-9']+`.
+* Fixed edge cases in top-word frequency calculation to safely handle non-list or empty token values.
+* Introduced optional `_tokens` column to cache token lists for reuse in future feature extractors.
+
+TLDR:
+
+v0.0.8:
+
+Removed duplicate code in extract_features.py
+
+Improved tokenization regex
+
+Fixed edge cases in word frequency calculation
+
+Added optional token caching
+
+Lexical feature extraction now stable and ready for next stage
 
 testing connection

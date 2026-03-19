@@ -68,19 +68,22 @@ def extract_lexical_features(df: pd.DataFrame) -> pd.DataFrame:
     - `repetition_score` (top_word_frequency / _word_count)
     """
     df = df.copy()
-    # Tokenize by whitespace in a vectorized way (lowercased)
-    tokens = df["lyrics"].str.lower().str.findall(r"\S+")
+    # Tokenize by lowercasing and extracting alphanumeric tokens (keeps apostrophes)
+    tokens = df["lyrics"].str.lower().str.findall(r"[a-z0-9']+")
+
+    # Cache tokens for reuse by downstream feature extractors
+    df["_tokens"] = tokens
 
     # unique_words
-    df["unique_words"] = tokens.map(lambda toks: len(set(toks)) if isinstance(toks, list) else 0).astype(int)
+    df["unique_words"] = df["_tokens"].map(lambda toks: len(set(toks)) if isinstance(toks, list) else 0).astype(int)
 
-    # top_word_frequency using Counter; returns 0 for empty lists
+    # top_word_frequency using Counter; safe for non-list or empty inputs
     def _top_freq(toks):
-        if not toks:
+        if not isinstance(toks, list) or len(toks) == 0:
             return 0
         return Counter(toks).most_common(1)[0][1]
 
-    df["top_word_frequency"] = tokens.map(_top_freq).astype(int)
+    df["top_word_frequency"] = df["_tokens"].map(_top_freq).astype(int)
 
     # Avoid division by zero by treating zero word counts as NaN then filling with 0
     total_words = df["_word_count"].replace(0, np.nan)
